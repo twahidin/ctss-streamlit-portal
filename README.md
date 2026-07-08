@@ -100,7 +100,13 @@ This creates `group-1/` through `group-7/`, each with a placeholder `app.py` and
 
 ### 5. Create the Railway group services
 
-**Option A — automatic (recommended).** Provision all group services in one command with `scripts/provision_group_services.py`. It creates the project, one service per group (Root Directory, Watch Paths, and Start Command all set), generates a public domain for each, and can emit the `GROUP_CODES` JSON from the real URLs:
+**Option A — click-through admin app (easiest, no command line).** Deploy or run the Streamlit setup panel in [`admin/`](admin/README.md). It seeds the folders, creates every group service on Railway, and generates the `GROUP_CODES` list — all from buttons in a web page. Ideal for non-technical teachers.
+
+```bash
+pip install -r admin/requirements.txt && streamlit run admin/app.py
+```
+
+**Option B — one command.** Provision all group services with `scripts/provision_group_services.py`. It creates the project, one service per group (Root Directory, Watch Paths, and Start Command all set), generates a public domain for each, and can emit the `GROUP_CODES` JSON from the real URLs:
 
 ```bash
 # Dry run first — prints the plan, creates nothing:
@@ -113,7 +119,7 @@ python scripts/provision_group_services.py --repo you/ctss-streamlit-projects --
 
 Auth uses your `railway login` session (or `RAILWAY_TOKEN`). Railway's GitHub app must have access to the mono-repo (connect it once when prompted, or in GitHub settings) — required for private repos.
 
-**Option B — manual (Railway dashboard).** For **each** group folder, create one service connected to the mono-repo:
+**Option C — manual (Railway dashboard).** For **each** group folder, create one service connected to the mono-repo:
 
 | Setting          | Value                                                              |
 | ---------------- | ------------------------------------------------------------------ |
