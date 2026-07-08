@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deployed — CTSS Streamlit Upload Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center antialiased">
+  <main class="w-full max-w-lg px-6">
+    <section class="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-8 shadow-xl text-center">
+      <div class="mx-auto w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mb-6">
+        <svg viewBox="0 0 24 24" class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-semibold mb-2">Deployed</h1>
+      <p class="text-zinc-400 mb-6">{{ group_name }} — your app is live at:</p>
+
+      <a
+        href="{{ url }}"
+        target="_blank"
+        rel="noopener"
+        class="block bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-indigo-300 hover:text-indigo-200 hover:border-indigo-500/50 break-all transition"
+      >{{ url }}</a>
+
+      <p class="text-xs text-zinc-500 mt-4">
+        Allow ~60 seconds for Railway to build and start your app.
+      </p>
+      <p class="text-xs text-zinc-600 mt-1">commit {{ commit_sha }}</p>
+
+      <a href="/" class="inline-block mt-8 text-sm text-zinc-300 hover:text-white underline underline-offset-4">
+        Upload again
+      </a>
+    </section>
+  </main>
+</body>
+</html>

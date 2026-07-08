@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Upload rejected — CTSS Streamlit Upload Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center antialiased">
+  <main class="w-full max-w-lg px-6">
+    <section class="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-8 shadow-xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-red-500/15 border border-red-500/40 flex items-center justify-center">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h1 class="text-xl font-semibold">Upload rejected</h1>
+      </div>
+
+      <p class="text-sm text-zinc-400 mb-4">
+        Your files weren't deployed. Fix the issues below and try again.
+      </p>
+
+      <ul class="space-y-2 mb-6">
+        {% for error in errors %}
+          <li class="text-sm bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 font-mono whitespace-pre-wrap">{{ error }}</li>
+        {% endfor %}
+      </ul>
+
+      <a href="/" class="block text-center bg-indigo-500 hover:bg-indigo-400 text-white font-medium rounded-lg py-3 transition">
+        Try again
+      </a>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,23 @@
+/* Minimal custom layer on top of Tailwind. */
+
+html { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+.file-input {
+  width: 100%;
+  font-size: 0.875rem;
+  color: rgb(228 228 231);          /* zinc-200 */
+}
+.file-input::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid rgb(63 63 70);  /* zinc-700 */
+  background: rgb(24 24 27);        /* zinc-900 */
+  color: rgb(228 228 231);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.file-input::file-selector-button:hover {
+  background: rgb(39 39 42);        /* zinc-800 */
+  border-color: rgb(99 102 241);    /* indigo-500 */
+}
