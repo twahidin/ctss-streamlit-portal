@@ -68,13 +68,18 @@ cp .env.example .env
 # Edit .env: set GITHUB_TOKEN, GITHUB_REPO, GROUP_CODES.
 ```
 
-### 3. Generate group codes
+### 3. Generate group codes (wizard)
+
+Don't hand-write the JSON — run the wizard. It generates friendly codes like
+`sky-tiger-42` and prints a table plus the ready-to-paste `GROUP_CODES` value:
 
 ```bash
-python -c "import secrets; [print(secrets.token_urlsafe(8)) for _ in range(7)]"
+python scripts/make_group_codes.py           # asks how many groups
+python scripts/make_group_codes.py --groups 12 --out group_codes.local.txt
 ```
 
-Compose the `GROUP_CODES` JSON in `.env`:
+It builds the `GROUP_CODES` JSON for you (`id` = mono-repo folder, `url` = that
+group's live Railway URL):
 
 ```json
 {
@@ -82,6 +87,8 @@ Compose the `GROUP_CODES` JSON in `.env`:
   "red-otter-77": {"id": "group-2", "url": "https://group-2.up.railway.app", "name": "Group 2"}
 }
 ```
+
+Paste the single-line output as the portal service's `GROUP_CODES` variable (or into `.env` locally). Use `--url-template "https://grp{n}.up.railway.app"` if your live URLs follow a different pattern.
 
 ### 4. Seed the mono-repo
 
