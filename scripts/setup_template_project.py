@@ -75,13 +75,14 @@ def gql(token: str, query: str, variables: dict | None = None) -> dict:
     return payload["data"]
 
 
-def create_project(token: str, name: str, workspace_id: str) -> tuple[str, str]:
+def create_project(token: str, name: str, workspace_id: str | None) -> tuple[str, str]:
     q = """mutation($input: ProjectCreateInput!){
       projectCreate(input:$input){ id environments{ edges{ node{ id name } } } }
     }"""
-    proj = gql(token, q, {"input": {
-        "name": name, "workspaceId": workspace_id, "defaultEnvironmentName": "production",
-    }})["projectCreate"]
+    proj_input: dict = {"name": name, "defaultEnvironmentName": "production"}
+    if workspace_id:  # API tokens omit this; Railway infers the workspace
+        proj_input["workspaceId"] = workspace_id
+    proj = gql(token, q, {"input": proj_input})["projectCreate"]
     envs = [e["node"] for e in proj["environments"]["edges"]]
     env = next((e for e in envs if e["name"] == "production"), envs[0])
     return proj["id"], env["id"]
@@ -131,13 +132,19 @@ def main() -> int:
         return 0
 
     token = load_token()
-    workspaces = gql(token, "query{ me { workspaces { id name } } }")["me"]["workspaces"]
-    if not workspaces:
-        raise SystemExit("Your Railway account has no workspace.")
-    ws = next((w["id"] for w in workspaces if args.workspace in (w["id"], w["name"])), None) \
-        if args.workspace else workspaces[0]["id"]
-    if ws is None:
-        raise SystemExit(f"Workspace {args.workspace!r} not found.")
+    # User-session tokens (railway login) can list workspaces and must pass a workspaceId.
+    # Dashboard API tokens can't use `me`; projectCreate infers their workspace, so ws=None.
+    try:
+        workspaces = gql(token, "query{ me { workspaces { id name } } }")["me"]["workspaces"]
+    except RailwayError:
+        workspaces = []
+    if workspaces:
+        ws = next((w["id"] for w in workspaces if args.workspace in (w["id"], w["name"])), None) \
+            if args.workspace else workspaces[0]["id"]
+        if ws is None:
+            raise SystemExit(f"Workspace {args.workspace!r} not found.")
+    else:
+        ws = None
 
     project_id, env_id = create_project(token, args.project_name, ws)
     _ENV[0] = env_id

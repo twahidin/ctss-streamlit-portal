@@ -111,11 +111,20 @@ def _code_generator():
 # Railway operations
 # ---------------------------------------------------------------------------
 
-def resolve_workspace(token: str, wanted: str | None) -> str:
-    data = gql(token, "query{ me { workspaces { id name } } }")
+def resolve_workspace(token: str, wanted: str | None) -> str | None:
+    """Workspace id for a user-session token, or None for a dashboard API token.
+
+    Railway account API tokens (railway.com/account/tokens) can't use the `me`
+    query, but projectCreate infers their workspace — so None is correct there.
+    Only user-session tokens (railway login) can and must supply a workspaceId.
+    """
+    try:
+        data = gql(token, "query{ me { workspaces { id name } } }")
+    except RailwayError:
+        return None
     workspaces = data["me"]["workspaces"]
     if not workspaces:
-        raise SystemExit("Your Railway account has no workspaces.")
+        return None
     if wanted:
         for w in workspaces:
             if wanted in (w["id"], w["name"]):
@@ -124,7 +133,7 @@ def resolve_workspace(token: str, wanted: str | None) -> str:
     return workspaces[0]["id"]
 
 
-def create_project(token: str, name: str, workspace_id: str) -> tuple[str, str]:
+def create_project(token: str, name: str, workspace_id: str | None) -> tuple[str, str]:
     """Create a project; return (project_id, default_environment_id)."""
     q = """
     mutation($input: ProjectCreateInput!) {
@@ -133,11 +142,10 @@ def create_project(token: str, name: str, workspace_id: str) -> tuple[str, str]:
         environments { edges { node { id name } } }
       }
     }"""
-    data = gql(token, q, {"input": {
-        "name": name,
-        "workspaceId": workspace_id,
-        "defaultEnvironmentName": "production",
-    }})
+    proj_input: dict = {"name": name, "defaultEnvironmentName": "production"}
+    if workspace_id:  # API tokens omit this; Railway infers the workspace
+        proj_input["workspaceId"] = workspace_id
+    data = gql(token, q, {"input": proj_input})
     proj = data["projectCreate"]
     envs = [e["node"] for e in proj["environments"]["edges"]]
     env = next((e for e in envs if e["name"] == "production"), envs[0])

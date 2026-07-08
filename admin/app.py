@@ -121,17 +121,33 @@ def rw(token: str, query: str, variables: dict | None = None) -> dict:
     return payload["data"]
 
 
+def workspace_id(token: str) -> str | None:
+    """Workspace id for a user-session token, or None for a dashboard API token.
+
+    Railway account API tokens (railway.com/account/tokens) are workspace-scoped and
+    are NOT tied to a user, so the `me` query returns "Not Authorized" for them.
+    In that case projectCreate infers the workspace from the token, so None is correct.
+    Only user-session tokens (railway login) can — and must — supply a workspaceId.
+    """
+    try:
+        data = rw(token, "query{ me { workspaces { id name } } }")
+    except RailwayError:
+        return None  # API token: `me` is not authorized; workspace is inferred
+    wss = (data.get("me") or {}).get("workspaces") or []
+    return wss[0]["id"] if wss else None
+
+
 def provision_services(token: str, repo: str, n_groups: int, project_name: str,
                        branch: str, log) -> dict[str, str]:
     """Create a project + N services from the repo. Returns {group_id: live_url}."""
-    workspaces = rw(token, "query{ me { workspaces { id name } } }")["me"]["workspaces"]
-    if not workspaces:
-        raise RailwayError("Your Railway account has no workspace.")
-    ws_id = workspaces[0]["id"]
+    proj_input = {"name": project_name, "defaultEnvironmentName": "production"}
+    ws_id = workspace_id(token)
+    if ws_id:
+        proj_input["workspaceId"] = ws_id
 
     proj = rw(token,
         "mutation($input: ProjectCreateInput!){ projectCreate(input:$input){ id environments{ edges{ node{ id name } } } } }",
-        {"input": {"name": project_name, "workspaceId": ws_id, "defaultEnvironmentName": "production"}},
+        {"input": proj_input},
     )["projectCreate"]
     envs = [e["node"] for e in proj["environments"]["edges"]]
     env_id = next((e["id"] for e in envs if e["name"] == "production"), envs[0]["id"])
