@@ -57,7 +57,11 @@ def gql(token: str, query: str, variables: dict | None = None) -> dict:
     body = json.dumps({"query": query, "variables": variables or {}}).encode("utf-8")
     req = urllib.request.Request(
         API_URL, data=body,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "ctss-portal-setup/1.0",  # Railway's Cloudflare blocks the default urllib UA
+        },
     )
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:

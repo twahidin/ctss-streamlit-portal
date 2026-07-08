@@ -70,6 +70,7 @@ def gql(token: str, query: str, variables: dict | None = None) -> dict:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
+            "User-Agent": "ctss-portal-setup/1.0",  # Railway's Cloudflare blocks the default urllib UA
         },
     )
     try:
