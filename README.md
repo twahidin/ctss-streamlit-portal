@@ -20,9 +20,16 @@ GitHub mono-repo: ctss-streamlit-projects/
 
 > Replace `YOUR_TEMPLATE_CODE` above with the code Railway gives you after you publish this repo as a template (see below). Until then, deploy straight from the repo via **New Project → Deploy from GitHub repo → `twahidin/ctss-streamlit-portal`**.
 
-This template deploys **only the portal service**. The student Streamlit apps live in a *separate* GitHub mono-repo that the portal commits into (see the diagram above) — you create that mono-repo and its per-group Railway services separately (steps 4–5 under **One-time setup**).
+This template deploys **two services** from this one repo:
 
-**Variables the deployer must set** (Railway will prompt for these when configured as template variables):
+| Service  | Root Directory | What it is                                                              |
+| -------- | -------------- | ---------------------------------------------------------------------- |
+| `portal` | `/`            | The FastAPI upload portal students use (`./railway.json`).             |
+| `admin`  | `admin`        | The click-through Streamlit setup app for the teacher (`admin/railway.json`). |
+
+So one deploy gives you both `…/portal` (for students) and a separate `…/admin` URL (to set up groups). The student Streamlit apps themselves live in a *separate* GitHub mono-repo the portal commits into — you point at it during setup.
+
+**Variables the deployer sets** (on the `portal` service; the `admin` app takes its tokens in-app, so it needs none):
 
 | Variable       | Required | What it is                                                                 |
 | -------------- | -------- | -------------------------------------------------------------------------- |
@@ -30,14 +37,11 @@ This template deploys **only the portal service**. The student Streamlit apps li
 | `GITHUB_REPO`  | yes      | The mono-repo, e.g. `your-org/ctss-streamlit-projects`.                     |
 | `GROUP_CODES`  | yes      | JSON map `code → {id, url, name}` (see `.env.example`). Keep it secret.     |
 
-Start command and healthcheck are already defined in `railway.json` (`uvicorn app.main:app` + `/healthz`), so no build config is needed.
+**To build & publish the two-service template:**
 
-**To publish this repo as a reusable Railway template:**
-
-1. Deploy this repo once (New Project → Deploy from GitHub repo).
-2. On the service, add the three variables above under **Variables**.
-3. Project **Settings → Publish as Template** → mark `GITHUB_TOKEN` / `GITHUB_REPO` / `GROUP_CODES` as user-supplied → Publish.
-4. Copy the resulting `railway.com/template/…` code into the button URL above.
+1. Run `python scripts/setup_template_project.py --yes` — creates a Railway project with both services wired up.
+2. In that project: **Settings → Publish as Template** → mark `GITHUB_TOKEN` / `GITHUB_REPO` / `GROUP_CODES` as user-supplied → Publish. (Or try `--publish` on the script.)
+3. Copy the resulting `railway.com/template/…` code into the button URL above.
 
 ---
 
